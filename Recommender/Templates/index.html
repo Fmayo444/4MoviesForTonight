@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4MoviesForTonight</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">4Movies For Tonight</h1>
+    <form id="recommendationForm" class="mt-4">
+        <div class="form-group">
+            <label for="genre">Genre</label>
+            <select class="form-control" id="genre" name="genre" required>
+                <option value="" disabled selected>Select a genre</option>
+                {% for genre in genres %}
+                    <option value="{ {genre['id']} }">{ {genre['name']} }</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="start_year">Start Year</label>
+            <input type="number" class="form-control" id="start_year" name="start_year" placeholder="Enter start year" required>
+        </div>
+        <div class="form-group">
+            <label for="end_year">End Year</label>
+            <input type="number" class="form-control" id="end_year" name="end_year" placeholder="Enter end year" required>
+        </div>
+        <div class="form-group">
+            <label for="min_vote">Minimum Rating</label>
+            <input type="number" step="0.1" class="form-control" id="min_vote" name="min_vote" placeholder="Enter minimum rating (1-10)" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Get Recommendations</button>
+    </form>
+    <div id="results" class="mt-4"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('recommendationForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        fetch('/recommend', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                } else {
+                    data.forEach(movie => {
+                        const movieCard = document.createElement('div');
+                        movieCard.className = 'card mb-3';
+                        movieCard.innerHTML = `
+                            <div class="card-body">
+                                <h5 class="card-title">${movie.title}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Release Date: ${movie.release_date}</h6>
+                                <p class="card-text"><strong>Rating:</strong> ${movie.vote_average}</p>
+                                <p class="card-text">${movie.overview}</p>
+                            </div>
+                        `;
+                        resultsDiv.appendChild(movieCard);
+                    });
+                }
+            });
+    });
+</script>
+</body>
+</html>
