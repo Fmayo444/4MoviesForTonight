@@ -15,7 +15,7 @@
             <select class="form-control" id="genre" name="genre" required>
                 <option value="" disabled selected>Select a genre</option>
                 {% for genre in genres %}
-                    <option value="{ {genre['id']} }">{ {genre['name']} }</option>
+                    <option value="{{ genre['id'] }}">{{ genre['name'] }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -58,14 +58,23 @@
                     data.forEach(movie => {
                         const movieCard = document.createElement('div');
                         movieCard.className = 'card mb-3';
+                        const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'placeholder_image_url';
+
                         movieCard.innerHTML = `
-                            <div class="card-body">
-                                <h5 class="card-title">${movie.title}</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">Release Date: ${movie.release_date}</h6>
-                                <p class="card-text"><strong>Rating:</strong> ${movie.vote_average}</p>
-                                <p class="card-text">${movie.overview}</p>
+                        <div class="row no-gutters">
+                            <div class="col-md-4">
+                                <img src="${posterUrl}" class="card-img" alt="${movie.title}">
                             </div>
-                        `;
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">${movie.title}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">Release Date: ${movie.release_date}</h6>
+                                    <p class="card-text"><strong>Rating:</strong> ${movie.vote_average}</p>
+                                    <p class="card-text">${movie.overview}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                         resultsDiv.appendChild(movieCard);
                     });
                 }

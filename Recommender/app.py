@@ -16,7 +16,7 @@ def fetch_genres():
 def fetch_movies(genre_id, start_year, end_year, min_vote_avarage):
     movies = []
     for year in range(start_year, end_year + 1):
-        for page in range(1, 6):  # Fetch multiple pages to get more results
+        for page in range(1, 4):  # Fetch multiple pages to get more results
             response = requests.get(
                 f"{BASE_URL}/discover/movie",
                 params={
@@ -47,6 +47,7 @@ def get_genre_id(genre_name):
 @app.route('/')
 def index():
     genres = fetch_genres()
+    print(genres)
     return render_template('index.html', genres=genres)
 
 
@@ -57,21 +58,18 @@ def recommend():
     end_year = int(request.form.get('end_year'))
     min_vote = float(request.form.get('min_vote'))
 
-    genre_id = get_genre_id(genre)
-
-    if genre_id is None:
-        return jsonify({"error": f"Genre '{genre}' not found."})
-
-    movies = fetch_movies(genre_id, start_year, end_year, min_vote)
+    movies = fetch_movies(genre, start_year, end_year, min_vote)
 
     if not movies:
         return jsonify({"error": "No movies found with the given criteria."})
 
     movie_df = pd.DataFrame(movies)
-    movie_df = movie_df[['title', 'release_date', 'vote_average', 'overview']]
+    movie_df = movie_df[['title', 'release_date', 'vote_average', 'poster_path', 'overview']]
 
     return jsonify(movie_df.to_dict(orient='records'))
 
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+index()
